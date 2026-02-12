@@ -1,0 +1,75 @@
+/* Settings page styles */
+.settings-section {
+  background: var(--bg-card);
+  border: 1px solid var(--color-scan-line);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  margin-bottom: var(--space-4);
+}
+
+.settings-section-title {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-scan-line);
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-scan-line);
+}
+
+.settings-row:last-child {
+  border-bottom: none;
+}
+
+.settings-row-info {
+  flex: 1;
+}
+
+.settings-row-label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
+.settings-row-description {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.settings-row-action {
+  flex-shrink: 0;
+  margin-left: var(--space-4);
+}
+
+.theme-selector {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.theme-option {
+  width: 80px;
+  height: 56px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-static);
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-default);
+  overflow: hidden;
+}
+
+.theme-option.active {
+  border-color: var(--action);
+}
+
+.theme-option-dark {
+  background: #12121A;
+}
+
+.theme-option-light {
+  background: #F5F5F8;
+}

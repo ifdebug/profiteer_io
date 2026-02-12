@@ -1,0 +1,100 @@
+/* Hype Analyzer page styles */
+.hype-gauge-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-6);
+}
+
+.hype-gauge {
+  position: relative;
+  width: 220px;
+  height: 110px;
+  margin-bottom: var(--space-4);
+}
+
+.hype-score-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-4xl);
+  font-weight: 700;
+  text-align: center;
+}
+
+.hype-trend-label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-align: center;
+  margin-top: var(--space-2);
+}
+
+.hype-signals {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.signal-card {
+  text-align: center;
+  padding: var(--space-3);
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+}
+
+.signal-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+
+.signal-label {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin-top: var(--space-1);
+}
+
+.leaderboard-section {
+  margin-top: var(--space-6);
+}
+
+.leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.leaderboard-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-card);
+  border: 1px solid var(--color-scan-line);
+  border-radius: var(--radius-md);
+}
+
+.leaderboard-rank {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--text-tertiary);
+  width: 24px;
+  text-align: center;
+}
+
+.leaderboard-name {
+  flex: 1;
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
+.leaderboard-score {
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .hype-signals { grid-template-columns: repeat(2, 1fr); }
+}

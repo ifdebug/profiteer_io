@@ -1,0 +1,94 @@
+/* Arbitrage Finder page styles */
+.arbitrage-filters {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.opportunity-card {
+  background: var(--bg-card);
+  border: 1px solid var(--color-scan-line);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  transition: all var(--duration-fast) var(--ease-default);
+}
+
+.opportunity-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.opportunity-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+
+.opportunity-name {
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+
+.opportunity-flow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  padding: var(--space-3);
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+}
+
+.flow-platform {
+  flex: 1;
+  text-align: center;
+}
+
+.flow-platform .platform-name {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin-bottom: 2px;
+}
+
+.flow-platform .platform-price {
+  font-family: var(--font-mono);
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+
+.flow-arrow {
+  color: var(--text-disabled);
+  font-size: var(--text-lg);
+}
+
+.opportunity-profit {
+  font-family: var(--font-mono);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  text-align: center;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+}
+
+.risk-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  margin-top: var(--space-3);
+}
+
+.risk-bar {
+  flex: 1;
+  height: 4px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.risk-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+}

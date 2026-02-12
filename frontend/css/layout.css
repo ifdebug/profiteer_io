@@ -1,0 +1,317 @@
+/* ============================================================
+   Layout — App shell, sidebar, bottom tab bar, responsive
+   ============================================================ */
+
+/* ---- App Shell ---- */
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ---- Sidebar (Desktop) ---- */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--sidebar-width);
+  height: 100vh;
+  background: var(--bg-card);
+  border-right: 1px solid var(--color-scan-line);
+  display: flex;
+  flex-direction: column;
+  z-index: var(--z-sticky);
+  overflow-y: auto;
+}
+
+.sidebar-brand {
+  padding: var(--space-6) var(--space-5);
+  border-bottom: 1px solid var(--color-scan-line);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.sidebar-brand h1 {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--action), var(--hype));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.sidebar-brand .logo-dot {
+  color: var(--profit-strong);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: var(--space-3) 0;
+}
+
+.sidebar-nav .nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  transition: all var(--duration-fast) var(--ease-default);
+  cursor: pointer;
+  text-decoration: none;
+  border-left: 3px solid transparent;
+}
+
+.sidebar-nav .nav-item:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.sidebar-nav .nav-item.active {
+  background: var(--bg-active);
+  color: var(--action);
+  border-left-color: var(--action);
+}
+
+.sidebar-nav .nav-item .nav-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sidebar-footer {
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--color-scan-line);
+}
+
+/* ---- Header Bar (with notification bell) ---- */
+.header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-5);
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--color-scan-line);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+}
+
+.header-title {
+  font-size: var(--text-lg);
+  font-weight: 600;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.notification-bell {
+  position: relative;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  transition: background var(--duration-fast) var(--ease-default);
+  cursor: pointer;
+}
+
+.notification-bell:hover {
+  background: var(--bg-hover);
+}
+
+.notification-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: var(--radius-full);
+  background: var(--loss-strong);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+/* ---- Main Content ---- */
+.main-content {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-container {
+  max-width: var(--max-content);
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--space-6);
+  animation: fadeInUp var(--duration-slow) var(--ease-out);
+}
+
+.page-header {
+  margin-bottom: var(--space-6);
+}
+
+.page-header h2 {
+  font-size: var(--text-2xl);
+  margin-bottom: var(--space-2);
+}
+
+.page-header p {
+  color: var(--text-tertiary);
+  margin-bottom: 0;
+}
+
+/* ---- Grid System ---- */
+.grid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+.grid-auto {
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+/* ---- Bottom Tab Bar (Mobile) ---- */
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--tab-bar-height);
+  background: var(--bg-card);
+  border-top: 1px solid var(--color-scan-line);
+  display: none;
+  z-index: var(--z-sticky);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.tab-bar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  height: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.tab-bar .tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: var(--space-1) var(--space-2);
+  color: var(--text-tertiary);
+  font-size: 10px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-default);
+  min-width: 48px;
+}
+
+.tab-bar .tab-item:hover,
+.tab-bar .tab-item.active {
+  color: var(--action);
+}
+
+.tab-bar .tab-item .tab-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---- Responsive Breakpoints ---- */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 72px;
+  }
+
+  .sidebar-brand h1,
+  .sidebar-nav .nav-label {
+    display: none;
+  }
+
+  .sidebar-brand {
+    justify-content: center;
+    padding: var(--space-4);
+  }
+
+  .sidebar-nav .nav-item {
+    justify-content: center;
+    padding: var(--space-3);
+    border-left: none;
+    border-radius: var(--radius-md);
+    margin: var(--space-1) var(--space-2);
+  }
+
+  .sidebar-nav .nav-item.active {
+    border-left-color: transparent;
+  }
+
+  .main-content {
+    margin-left: 72px;
+  }
+
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+
+  .tab-bar {
+    display: block;
+  }
+
+  .main-content {
+    margin-left: 0;
+    padding-bottom: calc(var(--tab-bar-height) + env(safe-area-inset-bottom, 0));
+  }
+
+  .page-container {
+    padding: var(--space-4);
+  }
+
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .header-bar {
+    padding: var(--space-3) var(--space-4);
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .page-container {
+    padding: var(--space-3);
+  }
+
+  .grid-auto {
+    grid-template-columns: 1fr;
+  }
+}

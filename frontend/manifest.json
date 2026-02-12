@@ -1,0 +1,25 @@
+{
+  "name": "Profiteer.io",
+  "short_name": "Profiteer",
+  "description": "AI-powered reseller tools for maximizing profit",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "theme_color": "#12121A",
+  "background_color": "#12121A",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "finance", "shopping"]
+}

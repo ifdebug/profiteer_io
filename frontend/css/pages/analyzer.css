@@ -1,0 +1,55 @@
+/* Profitability Analyzer page styles */
+.analyzer-search {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.analyzer-search .form-input {
+  flex: 1;
+}
+
+.profit-summary-card {
+  background: var(--bg-card);
+  border: 1px solid var(--color-scan-line);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+  text-align: center;
+}
+
+.profit-summary-card .best-marketplace {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-2);
+}
+
+.profit-summary-card .best-profit {
+  font-family: var(--font-mono);
+  font-size: var(--text-4xl);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.profit-summary-card .profit-label {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-top: var(--space-1);
+}
+
+.marketplace-row .profitability-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  display: inline-block;
+}
+
+.profitability-strong { background: var(--profit); }
+.profitability-marginal { background: var(--warning); }
+.profitability-loss { background: var(--loss); }
+
+@media (max-width: 768px) {
+  .analyzer-search {
+    flex-direction: column;
+  }
+}

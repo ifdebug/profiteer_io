@@ -1,0 +1,84 @@
+/* Inventory Manager page styles */
+.inventory-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.inventory-toolbar .toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.inventory-toolbar .toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.view-toggle {
+  display: flex;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  padding: 2px;
+}
+
+.view-toggle button {
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  color: var(--text-tertiary);
+  transition: all var(--duration-fast) var(--ease-default);
+}
+
+.view-toggle button.active {
+  background: var(--action);
+  color: #fff;
+}
+
+.inventory-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-4);
+}
+
+.inventory-item-card {
+  background: var(--bg-card);
+  border: 1px solid var(--color-scan-line);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  position: relative;
+}
+
+.inventory-item-card .item-pl {
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.bulk-bar {
+  position: sticky;
+  bottom: var(--space-4);
+  background: var(--bg-elevated);
+  border: 1px solid var(--color-static);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-xl);
+  z-index: var(--z-dropdown);
+}
+
+@media (max-width: 768px) {
+  .inventory-summary { grid-template-columns: repeat(2, 1fr); }
+}
