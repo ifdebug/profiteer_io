@@ -38,12 +38,13 @@ All frontend and backend code written. Verified in browser (desktop + mobile). B
 - Mobile responsive at 375px: sidebar hidden, bottom tab bar with 5 tabs
 - Zero JS console errors from application code
 
-### Deferred (requires Docker)
+### Docker Verification (2026-02-11)
 
-- [ ] `docker-compose up` — start PostgreSQL, Redis, FastAPI
-- [ ] `curl http://localhost:8000/api/health` — verify backend
-- [ ] Confirm all 21 mock endpoints return valid JSON
-- [ ] Generate Alembic initial migration (`alembic revision --autogenerate -m "initial"`)
+- [x] `docker compose up` — PostgreSQL 16, Redis 7, FastAPI all running and healthy
+- [x] `curl http://localhost:8000/api/health` — returns `{"status":"ok","service":"profiteer-api"}`
+- [x] All 10 mock endpoints return valid JSON (dashboard, analyzer, trends, shipments, arbitrage, inventory, deals, hype, hype/leaderboards, notifications)
+- [x] Alembic initial migration generated (`c0cd0a8cbded`) and applied — 7 tables created
+- [x] Frontend renders with live backend data — all pages populated with mock data
 
 ---
 
