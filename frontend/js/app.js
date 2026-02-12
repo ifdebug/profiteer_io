@@ -29,17 +29,54 @@ function buildNav() {
     `).join('');
   }
 
-  // Tab bar (mobile)
+  // Tab bar (mobile) — first 4 items + "More" menu for the rest
   const tabBarInner = document.getElementById('tab-bar-inner');
   if (tabBarInner) {
-    // Show first 5 items in mobile tab bar
-    const mobileItems = NAV_ITEMS.slice(0, 5);
-    tabBarInner.innerHTML = mobileItems.map(item => `
+    const primaryItems = NAV_ITEMS.slice(0, 4);
+    const moreItems = NAV_ITEMS.slice(4);
+
+    tabBarInner.innerHTML = primaryItems.map(item => `
       <a class="tab-item" href="${item.route}" data-route="${item.route}">
         <span class="tab-icon">${item.icon}</span>
         <span>${item.label}</span>
       </a>
-    `).join('');
+    `).join('') + `
+      <div class="tab-item tab-more" id="tab-more" role="button" tabindex="0" aria-label="More pages">
+        <span class="tab-icon">•••</span>
+        <span>More</span>
+        <div class="tab-more-menu" id="tab-more-menu">
+          ${moreItems.map(item => `
+            <a class="tab-more-item tab-item" href="${item.route}" data-route="${item.route}">
+              <span class="tab-icon">${item.icon}</span>
+              <span>${item.label}</span>
+            </a>
+          `).join('')}
+        </div>
+      </div>
+    `;
+
+    // Toggle "More" menu
+    const moreBtn = document.getElementById('tab-more');
+    const moreMenu = document.getElementById('tab-more-menu');
+    moreBtn.addEventListener('click', (e) => {
+      // Don't toggle if they clicked a link inside the menu
+      if (e.target.closest('.tab-more-item')) return;
+      moreMenu.classList.toggle('open');
+    });
+
+    // Close menu when a link inside is clicked
+    moreMenu.querySelectorAll('.tab-more-item').forEach(item => {
+      item.addEventListener('click', () => {
+        moreMenu.classList.remove('open');
+      });
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!moreBtn.contains(e.target)) {
+        moreMenu.classList.remove('open');
+      }
+    });
   }
 }
 

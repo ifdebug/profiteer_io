@@ -238,6 +238,47 @@
   justify-content: center;
 }
 
+/* ---- More Menu (Mobile Tab Bar) ---- */
+.tab-more {
+  position: relative;
+}
+
+.tab-more-menu {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + var(--space-2));
+  right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--color-scan-line);
+  border-radius: var(--radius-lg);
+  padding: var(--space-2);
+  min-width: 160px;
+  box-shadow: var(--shadow-xl);
+  z-index: var(--z-dropdown);
+}
+
+.tab-more-menu.open {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.tab-more-menu .tab-more-item {
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  min-width: unset;
+}
+
+.tab-more-menu .tab-more-item:hover,
+.tab-more-menu .tab-more-item.active {
+  background: var(--bg-hover);
+  color: var(--action);
+}
+
 /* ---- Responsive Breakpoints ---- */
 
 /* Tablet */

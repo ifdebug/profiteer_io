@@ -54,6 +54,13 @@ function updateActiveNav(path) {
       item.classList.remove('active');
     }
   });
+
+  // Highlight "More" button if a child page is active
+  const moreBtn = document.getElementById('tab-more');
+  if (moreBtn) {
+    const hasActiveChild = moreBtn.querySelector('.tab-more-item.active');
+    moreBtn.classList.toggle('active', !!hasActiveChild);
+  }
 }
 
 function updatePageTitle(path) {
