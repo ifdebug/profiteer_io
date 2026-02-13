@@ -1,43 +1,89 @@
 /* Profitability Analyzer page styles */
+
+/* ---- Search form ---- */
 .analyzer-search {
   display: flex;
   gap: var(--space-3);
   margin-bottom: var(--space-6);
+  align-items: flex-start;
 }
 
 .analyzer-search .form-input {
   flex: 1;
 }
 
-.profit-summary-card {
+.analyzer-search-wrapper {
+  position: relative;
+  flex: 2;
+}
+
+.analyzer-search-wrapper .form-input {
+  width: 100%;
+}
+
+.analyzer-price-input {
+  max-width: 160px;
+  flex: 0 0 auto !important;
+}
+
+.analyzer-condition-select {
+  max-width: 150px;
+  flex: 0 0 auto !important;
+}
+
+/* ---- Search history dropdown ---- */
+.search-history-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: var(--z-dropdown);
   background: var(--bg-card);
   border: 1px solid var(--color-scan-line);
-  border-radius: var(--radius-lg);
-  padding: var(--space-6);
-  margin-bottom: var(--space-6);
-  text-align: center;
+  border-top: none;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  max-height: 320px;
+  overflow-y: auto;
+  display: none;
+  box-shadow: var(--shadow-lg);
 }
 
-.profit-summary-card .best-marketplace {
+.search-history-dropdown.open {
+  display: block;
+}
+
+.search-history-item {
+  padding: var(--space-3) var(--space-4);
+  cursor: pointer;
+  border-bottom: 1px solid var(--color-scan-line);
+  transition: background var(--duration-fast) var(--ease-default);
+}
+
+.search-history-item:last-child {
+  border-bottom: none;
+}
+
+.search-history-item:hover {
+  background: var(--bg-surface);
+}
+
+.search-history-query {
   font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-history-meta {
+  font-size: var(--text-xs);
   color: var(--text-tertiary);
-  margin-bottom: var(--space-2);
 }
 
-.profit-summary-card .best-profit {
-  font-family: var(--font-mono);
-  font-size: var(--text-4xl);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-.profit-summary-card .profit-label {
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  margin-top: var(--space-1);
-}
-
-.marketplace-row .profitability-indicator {
+/* ---- Profitability indicators ---- */
+.profitability-indicator {
   width: 8px;
   height: 8px;
   border-radius: var(--radius-full);
@@ -48,8 +94,58 @@
 .profitability-marginal { background: var(--warning); }
 .profitability-loss { background: var(--loss); }
 
+/* ---- Loading state ---- */
+.analyzer-loading {
+  text-align: center;
+  margin-bottom: var(--space-4);
+}
+
+.analyzer-loading-text {
+  font-size: var(--text-lg);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-4);
+}
+
+.loading-dots::after {
+  content: '';
+  animation: loadingDots 1.5s infinite steps(4, end);
+}
+
+@keyframes loadingDots {
+  0%   { content: ''; }
+  25%  { content: '.'; }
+  50%  { content: '..'; }
+  75%  { content: '...'; }
+  100% { content: ''; }
+}
+
+/* Progress bar animation for analyzer */
+.analyzer-progress {
+  transition: width 15s ease-out;
+}
+
+/* ---- Stat card tweaks for analyzer ---- */
+.analyzer-search + #analyzer-results .stat-card .stat-value {
+  font-size: var(--text-xl);
+}
+
+/* ---- Retry button in empty states ---- */
+.analyzer-retry-btn {
+  margin-top: var(--space-4);
+}
+
+/* ---- Responsive ---- */
 @media (max-width: 768px) {
   .analyzer-search {
     flex-direction: column;
+  }
+
+  .analyzer-price-input,
+  .analyzer-condition-select {
+    max-width: none;
+  }
+
+  .analyzer-search-wrapper {
+    flex: auto;
   }
 }
