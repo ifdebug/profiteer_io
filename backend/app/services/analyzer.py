@@ -157,12 +157,17 @@ class AnalyzerService:
         """Persist scraped prices to price_history table (best-effort).
 
         Uses its own DB session to avoid conflicts with the request session.
+        Resolves a real item_id via ItemService.find_or_create().
         """
         try:
             from app.database import async_session
-            from app.models.price_history import PriceHistory
+            from app.services.item_service import item_service
+            from app.services.price_tracker import price_tracker
 
             async with async_session() as db:
+                # Resolve (or create) the item by name
+                item = await item_service.find_or_create(db, query)
+
                 for result in results:
                     if isinstance(result, Exception) or not isinstance(result, ScrapeResult):
                         continue
@@ -171,16 +176,19 @@ class AnalyzerService:
 
                     # Record the average sold price as a price history entry
                     if result.avg_sold_price:
-                        db.add(
-                            PriceHistory(
-                                item_id=1,  # TODO: resolve real item_id via item lookup
-                                marketplace=result.marketplace,
-                                price=result.avg_sold_price,
-                                condition="new",
-                            )
+                        await price_tracker.record_price(
+                            db,
+                            item.id,
+                            result.marketplace,
+                            result.avg_sold_price,
                         )
 
                 await db.commit()
+                logger.info(
+                    "Persisted prices for item_id=%d name=%r",
+                    item.id,
+                    item.name,
+                )
         except Exception as exc:
             logger.warning("Failed to persist prices: %s", exc)
 

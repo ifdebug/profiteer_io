@@ -1,77 +1,71 @@
-"""Price Trend Tracker endpoint — returns mock price history data."""
+"""Price Trend Tracker endpoints — real price history from PostgreSQL."""
 
-import random
-from datetime import datetime, timedelta
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from fastapi import APIRouter, Query
+from app.database import get_db
+from app.models.item import Item
+from app.models.price_history import PriceHistory
+from app.schemas.trends import ItemSearchResult, TrendResponse
+from app.services.price_tracker import price_tracker
 
 router = APIRouter()
 
 
-def _generate_price_series(base_price: float, days: int, volatility: float = 0.05):
-    """Generate realistic mock price data points."""
-    points = []
-    price = base_price
-    now = datetime.utcnow()
-    for i in range(days):
-        change = random.uniform(-volatility, volatility) * price
-        price = max(price + change, base_price * 0.5)
-        points.append({
-            "date": (now - timedelta(days=days - i)).isoformat(),
-            "price": round(price, 2),
-        })
-    return points
+@router.get("", response_model=list[ItemSearchResult])
+async def search_items(
+    q: str = Query(..., min_length=1, description="Search query for item name"),
+    db: AsyncSession = Depends(get_db),
+):
+    """Search items by name for the trends search bar."""
+    # Subquery: count price_history rows per item for relevance
+    price_count_sq = (
+        select(
+            PriceHistory.item_id,
+            func.count(PriceHistory.id).label("price_count"),
+        )
+        .group_by(PriceHistory.item_id)
+        .subquery()
+    )
+
+    stmt = (
+        select(
+            Item.id,
+            Item.name,
+            Item.category,
+            Item.image_url,
+            func.coalesce(price_count_sq.c.price_count, 0).label("price_count"),
+        )
+        .outerjoin(price_count_sq, Item.id == price_count_sq.c.item_id)
+        .where(Item.name.ilike(f"%{q}%"))
+        .order_by(func.coalesce(price_count_sq.c.price_count, 0).desc())
+        .limit(10)
+    )
+
+    result = await db.execute(stmt)
+    rows = result.all()
+
+    return [
+        ItemSearchResult(
+            id=row.id,
+            name=row.name,
+            category=row.category,
+            image_url=row.image_url,
+            price_count=row.price_count,
+        )
+        for row in rows
+    ]
 
 
-@router.get("/{item_id}")
+@router.get("/{item_id}", response_model=TrendResponse)
 async def get_trends(
     item_id: int,
-    period: str = Query("30d", regex="^(7d|30d|90d|1y|all)$"),
+    period: str = Query("30d", pattern="^(7d|30d|90d|1y|all)$"),
+    db: AsyncSession = Depends(get_db),
 ):
-    days_map = {"7d": 7, "30d": 30, "90d": 90, "1y": 365, "all": 730}
-    days = days_map.get(period, 30)
-
-    random.seed(item_id)
-
-    return {
-        "item_id": item_id,
-        "item_name": "Pokemon Scarlet & Violet 151 Booster Bundle",
-        "period": period,
-        "current_price": 74.99,
-        "price_change_pct": 12.5,
-        "trend": "rising",
-        "marketplaces": {
-            "eBay": {
-                "data": _generate_price_series(72.00, days, 0.04),
-                "current": 74.99,
-                "high": 82.00,
-                "low": 58.00,
-                "avg": 71.50,
-            },
-            "TCGPlayer": {
-                "data": _generate_price_series(68.00, days, 0.05),
-                "current": 69.99,
-                "high": 78.00,
-                "low": 55.00,
-                "avg": 67.20,
-            },
-            "Amazon": {
-                "data": _generate_price_series(75.00, days, 0.03),
-                "current": 72.00,
-                "high": 84.99,
-                "low": 65.00,
-                "avg": 74.30,
-            },
-            "Mercari": {
-                "data": _generate_price_series(62.00, days, 0.06),
-                "current": 65.00,
-                "high": 72.00,
-                "low": 48.00,
-                "avg": 61.80,
-            },
-        },
-        "volume": {
-            "total_sales_period": 1247,
-            "avg_daily_sales": round(1247 / days, 1),
-        },
-    }
+    """Get price trend data for a specific item, grouped by marketplace."""
+    result = await price_tracker.get_trends(db, item_id, period)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return result
