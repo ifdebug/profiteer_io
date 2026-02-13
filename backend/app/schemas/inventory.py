@@ -15,6 +15,7 @@ class InventoryItemCreate(BaseModel):
     listing_status: str = "unlisted"
     storage_location: str | None = None
     notes: str | None = None
+    current_value: float | None = None
 
 
 class InventoryItemUpdate(BaseModel):
@@ -27,10 +28,12 @@ class InventoryItemUpdate(BaseModel):
     listing_status: str | None = None
     storage_location: str | None = None
     notes: str | None = None
+    current_value: float | None = None
 
 
 class InventoryItemResponse(BaseModel):
     id: int
+    user_id: int = 1
     name: str
     purchase_price: float
     purchase_date: date | None = None
@@ -46,9 +49,13 @@ class InventoryItemResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-class InventorySummary(BaseModel):
+class InventorySummaryStats(BaseModel):
     total_items: int
     total_value: float
     total_cost: float
     unrealized_pl: float
+
+
+class InventorySummary(BaseModel):
+    summary: InventorySummaryStats
     items: list[InventoryItemResponse]
