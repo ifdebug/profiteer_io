@@ -13,7 +13,13 @@ class Settings(BaseSettings):
     # CORS
     cors_origins: str = "http://localhost:3000,http://localhost:8080,http://127.0.0.1:5500"
 
-    # API Keys (Phase 2+)
+    # Scraper settings
+    scraper_timeout: float = 15.0
+    scraper_max_retries: int = 2
+    scraper_cache_ttl: int = 1800  # 30 minutes default
+    enabled_marketplaces: str = "ebay,tcgplayer,mercari"
+
+    # API Keys (reserved for future use)
     ebay_app_id: str = ""
     ebay_cert_id: str = ""
     tcgplayer_public_key: str = ""

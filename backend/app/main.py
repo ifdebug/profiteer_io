@@ -25,7 +25,9 @@ async def lifespan(app: FastAPI):
     yield
     # Shutdown
     from app.database import engine
+    from app.services.cache import cache_service
 
+    await cache_service.close()
     await engine.dispose()
 
 
