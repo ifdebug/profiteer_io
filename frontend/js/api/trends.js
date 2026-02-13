@@ -1,3 +1,4 @@
 /** Price Trends API */
 import { api } from './client.js';
 export function getTrends(itemId, period = '30d') { return api.get(`/trends/${itemId}`, { period }); }
+export function searchItems(query) { return api.get('/trends', { q: query }); }
