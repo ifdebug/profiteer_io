@@ -9,6 +9,7 @@ from app.models.shipment import Shipment
 from app.models.alert import Alert
 from app.models.deal import Deal
 from app.models.hype_snapshot import HypeSnapshot
+from app.models.notification import Notification
 
 __all__ = [
     "Base",
@@ -20,4 +21,5 @@ __all__ = [
     "Alert",
     "Deal",
     "HypeSnapshot",
+    "Notification",
 ]

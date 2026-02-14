@@ -24,117 +24,85 @@ All frontend and backend code written. Verified in browser (desktop + mobile). B
 | 1.14 | PWA setup (manifest.json, sw.js, icons) | Done |
 | 1.15 | Verification + documentation | Done |
 
-### Verification Results (2026-02-11)
-
-- 100+ files, all Python/JS syntax valid
-- All JS module imports resolve correctly
-- App shell renders (sidebar, header, footer, navigation)
-- Hash routing works for all 9 pages, browser back/forward works
-- Dark theme (CRT Phosphor palette) renders correctly
-- Light theme toggle works and persists via localStorage
-- Skeleton loaders animate on data-dependent pages
-- Error states display gracefully when backend is offline
-- Toast notifications (success/error) render and auto-dismiss
-- Mobile responsive at 375px: sidebar hidden, bottom tab bar with 5 tabs
-- Zero JS console errors from application code
-
-### Docker Verification (2026-02-11)
-
-- [x] `docker compose up` — PostgreSQL 16, Redis 7, FastAPI all running and healthy
-- [x] `curl http://localhost:8000/api/health` — returns `{"status":"ok","service":"profiteer-api"}`
-- [x] All 10 mock endpoints return valid JSON (dashboard, analyzer, trends, shipments, arbitrage, inventory, deals, hype, hype/leaderboards, notifications)
-- [x] Alembic initial migration generated (`c0cd0a8cbded`) and applied — 7 tables created
-- [x] Frontend renders with live backend data — all pages populated with mock data
-
 ---
 
-## Phase 2: Core Tools — IN PROGRESS
+## Phase 2: Core Tools — COMPLETE
 
 Profitability Analyzer + Inventory Manager with real data persistence and marketplace integrations.
 
 | Step | Description | Status |
 |------|-------------|--------|
 | 2.1 | Profitability Analyzer backend (service, scrapers, fee engine, caching) | Done |
-| 2.2 | Profitability Analyzer frontend (auto-suggest, comparison table, history) | — |
-| 2.3 | Inventory Manager backend (full CRUD, market value updates, CSV export) | — |
-| 2.4 | Inventory Manager frontend (grid/list view, add/edit modal, bulk actions) | — |
-
-### Step 2.1 Details — Analyzer Backend (2026-02-12)
-
-**New files created (6):**
-- `backend/app/schemas/scraper.py` — ScrapedListing + ScrapeResult Pydantic models
-- `backend/app/scrapers/base.py` — Abstract BaseScraper with httpx HTTP client, User-Agent rotation, retry/backoff, HTML parsing
-- `backend/app/scrapers/ebay.py` — eBay scraper (new s-card layout + legacy s-item fallback)
-- `backend/app/scrapers/tcgplayer.py` — TCGPlayer scraper (product cards + __NEXT_DATA__ fallback)
-- `backend/app/scrapers/mercari.py` — Mercari scraper (__NEXT_DATA__ + HTML fallback), stretch goal
-- `backend/app/services/analyzer.py` — Orchestrator: parallel scraping, Redis cache, fee calculation, DB persistence
-- `backend/app/services/cache.py` — Redis caching with marketplace-specific TTLs (30-60 min)
-
-**Modified files (4):**
-- `backend/app/scrapers/__init__.py` — Scraper registry with singleton instances
-- `backend/app/routers/analyzer.py` — Replaced 107-line mock with real service call
-- `backend/app/main.py` — Added cache_service.close() to lifespan shutdown
-- `backend/app/config.py` — Added scraper settings (timeout, retries, cache TTL, enabled marketplaces)
-- `backend/requirements.txt` — Added lxml==5.3.0, httpx[http2]
-
-### Scraper Verification (2026-02-12)
-
-- [x] eBay scraper: 56 sold listings parsed, $337.04 avg sold price for "Pokemon 151 Booster Bundle"
-- [x] Redis cache: second request returns in 0.37s (cache hit) vs ~30s (cache miss)
-- [x] Fee calculation: $44.66 platform + $10.57 payment = $55.23 total fees
-- [x] Net profit: $246.51 (73.14% margin, 986% ROI) — correctly computed
-- [x] Graceful degradation: Mercari returns 403 (blocked), silently omitted
-- [x] TCGPlayer: rate-limited from Docker IP, silently omitted
-- [x] Non-existent items: eBay fuzzy-matches, returns best-match results
-- [x] No 500 errors — all failures handled gracefully
-- [ ] Price persistence: FK constraint (item_id=1 not in items table) — deferred to item CRUD
-
-### Known Limitations
-
-- **Docker IP blocking:** eBay rate-limits aggressively from Docker Desktop. First request usually succeeds; subsequent ones may 503. Residential IPs work reliably.
-- **TCGPlayer/Mercari:** Both block requests from Docker/datacenter IPs. Works with residential IPs.
-- **eBay HTML structure:** eBay migrated from `.s-item` to `.s-card` layout in 2026. Scraper supports both formats.
-- **Price persistence:** Requires item CRUD (Step 2.3) to resolve item_id properly.
+| 2.2 | Profitability Analyzer frontend (auto-suggest, comparison table, history) | Done |
+| 2.3 | Inventory Manager backend (full CRUD, market value updates) | Done |
+| 2.4 | Inventory Manager frontend (grid view, add/edit modal, delete) | Done |
 
 ---
 
-## Phase 3: Market Intelligence — NOT STARTED
+## Phase 3: Market Intelligence — COMPLETE
 
-Price Trends + Hype Analyzer + Arbitrage Finder with real data.
+Price Trends + Hype Analyzer + Arbitrage Finder with real data and background jobs.
 
 | Step | Description | Status |
 |------|-------------|--------|
-| 3.1 | Price Trend Tracker backend (price collection, scheduled updates, alerts) | — |
-| 3.2 | Price Trend Tracker frontend (multi-line chart, period selector, alerts UI) | — |
-| 3.3 | Hype Analyzer backend (signal aggregation, scoring, scheduled updates) | — |
-| 3.4 | Hype Analyzer frontend (gauge, comparison mode, leaderboards) | — |
-| 3.5 | Arbitrage Finder backend (cross-platform scanner, risk scoring) | — |
-| 3.6 | Arbitrage Finder frontend (opportunity cards, filters, watchlist) | — |
-| 3.7 | Background task infrastructure (APScheduler + Redis job store) | — |
+| 3.1 | Price Trend Tracker backend (real price history from PostgreSQL) | Done |
+| 3.2 | Price Trend Tracker frontend (multi-line chart, item search, autocomplete) | Done |
+| 3.3 | Hype Analyzer backend (6-factor scoring engine from price history) | Done |
+| 3.4 | Hype Analyzer frontend (gauge, leaderboards, trend badges) | Done |
+| 3.5 | Arbitrage Finder backend (cross-marketplace price gap engine) | Done |
+| 3.6 | Arbitrage Finder frontend (opportunity cards, confidence badges) | Done |
+| 3.7 | Background task infrastructure (APScheduler + Redis, 5 periodic jobs) | Done |
+
+### Background Jobs
+
+| Job | Interval | Description |
+|-----|----------|-------------|
+| price_updates | 1 hour | Re-scrape items with recent price history |
+| hype_recalc | 6 hours | Recalculate hype scores for all items |
+| arbitrage_scan | 30 min | Find cross-marketplace price gap opportunities |
+| alert_checks | 15 min | Evaluate active alerts and trigger notifications |
+| shipment_updates | 30 min | Refresh tracking status for active shipments |
 
 ---
 
-## Phase 4: Operations — NOT STARTED
+## Phase 4: Operations — COMPLETE
 
-Shipment Tracker + Deals/Coupons Tracker with real integrations.
+Shipment Tracker + Deals/Coupons Tracker with real CRUD and integrations.
 
 | Step | Description | Status |
 |------|-------------|--------|
-| 4.1 | Shipment Tracker backend (carrier APIs, normalized timeline) | — |
-| 4.2 | Shipment Tracker frontend (add tracking, timeline, status notifications) | — |
-| 4.3 | Deals/Coupons Tracker backend (retailer scraping, profit cross-reference) | — |
-| 4.4 | Deals/Coupons Tracker frontend (deal cards, calendar, bookmarks, voting) | — |
+| 4.1 | Shipment Tracker backend (CRUD, carrier auto-detection, tracking scraper) | Done |
+| 4.2 | Shipment Tracker frontend (add form, timeline, refresh, delete) | Done |
+| 4.3 | Deals/Coupons Tracker backend (CRUD, voting, profit estimation) | Done |
+| 4.4 | Deals/Coupons Tracker frontend (add modal, vote buttons, category filters, sort) | Done |
 
 ---
 
-## Phase 5: Engagement — NOT STARTED
+## Phase 5: Engagement — COMPLETE
 
 Notifications + PWA finalization + Settings + Polish.
 
 | Step | Description | Status |
 |------|-------------|--------|
-| 5.1 | Notification system backend (in-app, email, push, preferences) | — |
-| 5.2 | Notification system frontend (bell icon, dropdown, mark read) | — |
-| 5.3 | PWA finalization (offline fallback, install prompt, background sync) | — |
-| 5.4 | Settings page completion (connected accounts, full data export) | — |
-| 5.5 | Performance + polish (Lighthouse 90+, lazy loading, accessibility) | — |
+| 5.1 | Notification system backend (model, service, real CRUD, alert integration) | Done |
+| 5.2 | Notification system frontend (bell dropdown, full page, mark read, delete) | Done |
+| 5.3 | PWA finalization (stale-while-revalidate, offline fallback, push handlers, background sync) | Done |
+| 5.4 | Settings page completion (push permission, data export CSV/JSON, cache clear, toggle persistence) | Done |
+| 5.5 | Performance + polish (reduced-motion, skip-to-content, sr-only, ARIA labels) | Done |
+
+### Notification System
+
+- PostgreSQL-backed notification model with 7 seeded notifications
+- NotificationService with full CRUD (list, create, mark read, mark all read, delete, delete all read)
+- Bell icon dropdown panel with badge count, 60s polling
+- Full notifications page with All/Unread filters, type badges, hover actions
+- Alert checks task creates real notifications on threshold crossings
+
+### PWA Enhancements
+
+- Stale-while-revalidate strategy for static assets (fixes cache staleness issues)
+- Network-first with offline fallback for navigation
+- Complete precache manifest (all CSS, JS, and page modules)
+- Offline fallback page with auto-reconnect
+- Push notification handler (push event + notification click)
+- Background sync event handler

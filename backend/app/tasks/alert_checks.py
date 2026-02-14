@@ -1,12 +1,8 @@
 """Periodic alert check task — evaluate price/hype alert thresholds.
 
 Runs every 15 minutes via APScheduler. Checks all active alerts against
-current price data and hype scores, and triggers notifications when
+current price data and hype scores, and creates real notifications when
 thresholds are crossed.
-
-Note: This is a placeholder for Phase 5 (Notification System). Currently
-logs which alerts would fire. The actual notification dispatch will be
-implemented when the notification service is built.
 """
 
 import logging
@@ -33,8 +29,11 @@ async def run_alert_checks() -> None:
         from app.database import async_session
         from app.models.alert import Alert
         from app.models.price_history import PriceHistory
+        from app.services.notification_service import NotificationService
 
         from sqlalchemy import desc, select
+
+        notification_service = NotificationService()
 
         async with async_session() as db:
             # Fetch all active alerts
@@ -65,15 +64,22 @@ async def run_alert_checks() -> None:
 
                         if row and float(row.price) <= float(alert.threshold_value):
                             alerts_triggered += 1
+                            current_price = float(row.price)
+                            threshold = float(alert.threshold_value)
                             logger.info(
                                 "ALERT TRIGGERED: item_id=%d price_drop — "
                                 "current $%.2f <= threshold $%.2f",
-                                alert.item_id,
-                                float(row.price),
-                                float(alert.threshold_value),
+                                alert.item_id, current_price, threshold,
                             )
-                            # Update last_triggered timestamp
                             alert.last_triggered = datetime.utcnow()
+                            await notification_service.create(
+                                db,
+                                user_id=alert.user_id,
+                                type="price_alert",
+                                title="Price Drop Alert",
+                                message=f"Item #{alert.item_id} dropped to ${current_price:.2f} (target: ${threshold:.2f})",
+                                link="#/trends",
+                            )
 
                     elif alert.alert_type == "price_rise":
                         # Check if price rose above threshold
@@ -88,14 +94,22 @@ async def run_alert_checks() -> None:
 
                         if row and float(row.price) >= float(alert.threshold_value):
                             alerts_triggered += 1
+                            current_price = float(row.price)
+                            threshold = float(alert.threshold_value)
                             logger.info(
                                 "ALERT TRIGGERED: item_id=%d price_rise — "
                                 "current $%.2f >= threshold $%.2f",
-                                alert.item_id,
-                                float(row.price),
-                                float(alert.threshold_value),
+                                alert.item_id, current_price, threshold,
                             )
                             alert.last_triggered = datetime.utcnow()
+                            await notification_service.create(
+                                db,
+                                user_id=alert.user_id,
+                                type="price_alert",
+                                title="Target Price Hit",
+                                message=f"Item #{alert.item_id} reached ${current_price:.2f} (target: ${threshold:.2f})",
+                                link="#/analyzer",
+                            )
 
                     elif alert.alert_type == "hype_threshold":
                         # Check if hype score crossed threshold
@@ -112,14 +126,22 @@ async def run_alert_checks() -> None:
 
                         if row and row.score >= int(alert.threshold_value):
                             alerts_triggered += 1
+                            score = row.score
+                            threshold = int(alert.threshold_value)
                             logger.info(
                                 "ALERT TRIGGERED: item_id=%d hype_threshold — "
                                 "score %d >= threshold %d",
-                                alert.item_id,
-                                row.score,
-                                int(alert.threshold_value),
+                                alert.item_id, score, threshold,
                             )
                             alert.last_triggered = datetime.utcnow()
+                            await notification_service.create(
+                                db,
+                                user_id=alert.user_id,
+                                type="hype",
+                                title="Hype Alert",
+                                message=f"Item #{alert.item_id} hype score crossed {threshold} (now {score})",
+                                link=f"#/hype/{alert.item_id}",
+                            )
 
                 except Exception as exc:
                     logger.warning(

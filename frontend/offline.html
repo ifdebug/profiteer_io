@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#12121A">
+  <title>Offline — Profiteer.io</title>
+  <style>
+    :root {
+      --bg-app: #12121A;
+      --bg-card: #1A1A28;
+      --text-primary: rgba(255, 255, 255, 0.92);
+      --text-secondary: rgba(255, 255, 255, 0.62);
+      --text-tertiary: rgba(255, 255, 255, 0.42);
+      --action: #00FF41;
+      --scan-line: rgba(255, 255, 255, 0.06);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg-app);
+      color: var(--text-primary);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .offline-container {
+      max-width: 420px;
+    }
+
+    .offline-icon {
+      font-size: 64px;
+      margin-bottom: 24px;
+      opacity: 0.6;
+    }
+
+    .offline-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .offline-description {
+      color: var(--text-secondary);
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    .offline-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: var(--action);
+      color: #12121A;
+      font-weight: 600;
+      font-size: 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .offline-btn:hover {
+      opacity: 0.9;
+    }
+
+    .offline-status {
+      margin-top: 32px;
+      font-size: 13px;
+      color: var(--text-tertiary);
+    }
+
+    .offline-status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #EF4444;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    .offline-brand {
+      margin-top: 48px;
+      font-size: 13px;
+      color: var(--text-tertiary);
+    }
+
+    .offline-brand span {
+      color: var(--action);
+    }
+  </style>
+</head>
+<body>
+  <div class="offline-container">
+    <div class="offline-icon">📡</div>
+    <h1 class="offline-title">You're Offline</h1>
+    <p class="offline-description">
+      Profiteer.io needs an internet connection to fetch live market data.
+      Check your connection and try again.
+    </p>
+    <button class="offline-btn" onclick="window.location.reload()">
+      Retry Connection
+    </button>
+    <div class="offline-status">
+      <span class="offline-status-dot"></span>
+      No internet connection detected
+    </div>
+    <div class="offline-brand">Profiteer<span>.</span>io</div>
+  </div>
+
+  <script>
+    // Auto-reload when connection comes back
+    window.addEventListener('online', () => {
+      window.location.reload();
+    });
+  </script>
+</body>
+</html>

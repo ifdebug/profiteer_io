@@ -4,6 +4,7 @@
 
 import { initRouter } from './router.js';
 import { NAV_ITEMS } from './utils/constants.js';
+import { initNotifications } from './components/notificationPanel.js';
 
 function initTheme() {
   const saved = localStorage.getItem('profiteer-theme') || 'dark';
@@ -85,6 +86,17 @@ function registerServiceWorker() {
     navigator.serviceWorker.register('./sw.js').catch(() => {
       // Service worker registration failed — non-critical
     });
+
+    // Listen for messages from the service worker (push notification clicks)
+    navigator.serviceWorker.addEventListener('message', (event) => {
+      if (event.data?.type === 'navigate' && event.data.url) {
+        window.location.hash = event.data.url;
+      }
+      if (event.data?.type === 'sync-complete') {
+        // Refresh current page data after background sync
+        window.dispatchEvent(new HashChangeEvent('hashchange'));
+      }
+    });
   }
 }
 
@@ -96,5 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   buildNav();
   registerServiceWorker();
+  initNotifications();
   initRouter();
 });

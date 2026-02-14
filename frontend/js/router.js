@@ -12,6 +12,7 @@ const routes = {
   '/inventory': () => import('./pages/inventory.js'),
   '/deals': () => import('./pages/deals.js'),
   '/hype': () => import('./pages/hype.js'),
+  '/notifications': () => import('./pages/notifications.js'),
   '/settings': () => import('./pages/settings.js'),
 };
 
@@ -24,6 +25,7 @@ const pageTitles = {
   '/inventory': 'Inventory Manager',
   '/deals': 'Deals & Coupons',
   '/hype': 'Hype Analyzer',
+  '/notifications': 'Notifications',
   '/settings': 'Settings',
 };
 

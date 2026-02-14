@@ -1,63 +1,64 @@
-"""Notification system endpoint — returns mock notifications."""
+"""Notification system — real CRUD with PostgreSQL persistence."""
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.database import get_db
+from app.schemas.notification import NotificationResponse, NotificationListResponse
+from app.services.notification_service import NotificationService
 
 router = APIRouter()
+service = NotificationService()
 
-MOCK_NOTIFICATIONS = [
-    {
-        "id": 1, "type": "price_alert", "title": "Price Drop Alert",
-        "message": "Nike Dunk Low Panda dropped to $98 on StockX (your target: $100)",
-        "read": False, "timestamp": "2026-02-11T14:30:00Z", "link": "#/trends/5",
-    },
-    {
-        "id": 2, "type": "price_alert", "title": "Target Price Hit",
-        "message": "Pokemon 151 Booster Box hit your sell target of $145 on eBay",
-        "read": False, "timestamp": "2026-02-11T12:15:00Z", "link": "#/analyzer",
-    },
-    {
-        "id": 3, "type": "shipment", "title": "Package Delivered",
-        "message": "Your UPS package to Chicago, IL was delivered at 2:05 PM",
-        "read": True, "timestamp": "2026-02-10T14:05:00Z", "link": "#/shipments",
-    },
-    {
-        "id": 4, "type": "arbitrage", "title": "New Arbitrage Opportunity",
-        "message": "LEGO AT-AT: Buy at Walmart $159.99, sell on eBay for ~$230. Est. profit: $38",
-        "read": True, "timestamp": "2026-02-10T10:00:00Z", "link": "#/arbitrage",
-    },
-    {
-        "id": 5, "type": "deal", "title": "Deal Alert",
-        "message": "Target Buy 2 Get 1 Free on trading cards starts today!",
-        "read": True, "timestamp": "2026-02-09T08:00:00Z", "link": "#/deals",
-    },
-    {
-        "id": 6, "type": "hype", "title": "Hype Alert",
-        "message": "Pokemon Prismatic Evolutions hype score crossed 90 (now 92)",
-        "read": False, "timestamp": "2026-02-11T09:00:00Z", "link": "#/hype/1",
-    },
-    {
-        "id": 7, "type": "inventory", "title": "Value Change",
-        "message": "Air Jordan 1 Chicago value increased by $25 to $320",
-        "read": True, "timestamp": "2026-02-10T22:00:00Z", "link": "#/inventory",
-    },
-]
+DEFAULT_USER_ID = 1
 
 
-@router.get("")
-async def get_notifications():
-    unread = sum(1 for n in MOCK_NOTIFICATIONS if not n["read"])
-    return {
-        "notifications": MOCK_NOTIFICATIONS,
-        "unread_count": unread,
-        "total": len(MOCK_NOTIFICATIONS),
-    }
+@router.get("", response_model=NotificationListResponse)
+async def get_notifications(
+    unread_only: bool = Query(False),
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    db: AsyncSession = Depends(get_db),
+):
+    """List notifications for the current user."""
+    data = await service.list(db, user_id=DEFAULT_USER_ID, unread_only=unread_only, limit=limit, offset=offset)
+    return data
 
 
-@router.put("/{notification_id}/read")
-async def mark_notification_read(notification_id: int):
-    return {"success": True, "id": notification_id, "read": True}
+@router.get("/unread-count")
+async def get_unread_count(db: AsyncSession = Depends(get_db)):
+    """Quick unread count for the notification badge."""
+    count = await service.get_unread_count(db, user_id=DEFAULT_USER_ID)
+    return {"unread_count": count}
+
+
+@router.put("/{notification_id}/read", response_model=NotificationResponse)
+async def mark_notification_read(notification_id: int, db: AsyncSession = Depends(get_db)):
+    """Mark a single notification as read."""
+    notif = await service.mark_read(db, notification_id, user_id=DEFAULT_USER_ID)
+    if not notif:
+        raise HTTPException(status_code=404, detail=f"Notification {notification_id} not found")
+    return notif
 
 
 @router.put("/read-all")
-async def mark_all_read():
-    return {"success": True, "message": "All notifications marked as read"}
+async def mark_all_read(db: AsyncSession = Depends(get_db)):
+    """Mark all unread notifications as read."""
+    count = await service.mark_all_read(db, user_id=DEFAULT_USER_ID)
+    return {"success": True, "message": f"Marked {count} notifications as read", "count": count}
+
+
+@router.delete("/{notification_id}")
+async def delete_notification(notification_id: int, db: AsyncSession = Depends(get_db)):
+    """Delete a single notification."""
+    deleted = await service.delete(db, notification_id, user_id=DEFAULT_USER_ID)
+    if not deleted:
+        raise HTTPException(status_code=404, detail=f"Notification {notification_id} not found")
+    return {"success": True, "message": f"Notification {notification_id} deleted"}
+
+
+@router.delete("/read")
+async def delete_all_read(db: AsyncSession = Depends(get_db)):
+    """Delete all read notifications."""
+    count = await service.delete_all_read(db, user_id=DEFAULT_USER_ID)
+    return {"success": True, "message": f"Deleted {count} read notifications", "count": count}
