@@ -5,6 +5,7 @@ Registers all periodic background tasks:
 - Hype recalculation: every 6 hours — recompute hype scores for all items
 - Arbitrage scan: every 30 minutes — find cross-marketplace price gaps
 - Alert checks: every 15 minutes — evaluate price/hype alert thresholds
+- Shipment updates: every 30 minutes — refresh tracking for active shipments
 
 Usage:
     from app.tasks.scheduler import start_scheduler, shutdown_scheduler
@@ -78,6 +79,7 @@ def _register_jobs(sched: AsyncIOScheduler) -> None:
     from app.tasks.arbitrage_scan import run_arbitrage_scan
     from app.tasks.hype_recalc import run_hype_recalculation
     from app.tasks.price_updates import run_price_updates
+    from app.tasks.shipment_updates import run_shipment_updates
 
     # Price updates — every hour
     sched.add_job(
@@ -112,6 +114,15 @@ def _register_jobs(sched: AsyncIOScheduler) -> None:
         trigger=IntervalTrigger(minutes=15),
         id="alert_checks",
         name="Price & Hype Alert Checks",
+        replace_existing=True,
+    )
+
+    # Shipment tracking updates — every 30 minutes
+    sched.add_job(
+        run_shipment_updates,
+        trigger=IntervalTrigger(minutes=30),
+        id="shipment_updates",
+        name="Shipment Tracking Updates",
         replace_existing=True,
     )
 

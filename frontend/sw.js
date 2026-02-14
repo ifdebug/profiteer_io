@@ -2,7 +2,7 @@
  * Service Worker — cache-first for static assets, network-first for API calls.
  */
 
-const CACHE_NAME = 'profiteer-v2';
+const CACHE_NAME = 'profiteer-v3';
 const STATIC_ASSETS = [
   './',
   './index.html',

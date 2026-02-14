@@ -1,113 +1,140 @@
-"""Shipment Tracker endpoints — CRUD with mock tracking timeline."""
+"""Shipment Tracker endpoints — CRUD with carrier auto-detection and tracking."""
 
-from fastapi import APIRouter
+import asyncio
 
-from app.schemas.shipment import ShipmentCreate
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.database import get_db
+from app.schemas.shipment import (
+    ShipmentCreate,
+    ShipmentResponse,
+    ShipmentSummary,
+)
+from app.services.shipment_tracker import shipment_service
 
 router = APIRouter()
 
-MOCK_SHIPMENTS = [
-    {
-        "id": 1,
-        "tracking_number": "9400111899223456789012",
-        "carrier": "USPS",
-        "status": "in_transit",
-        "origin": "Denver, CO",
-        "destination": "Los Angeles, CA",
-        "estimated_delivery": "2026-02-13T18:00:00Z",
-        "events": [
-            {"timestamp": "2026-02-11T08:30:00Z", "status": "in_transit", "location": "Phoenix, AZ", "description": "In Transit to Next Facility"},
-            {"timestamp": "2026-02-10T14:22:00Z", "status": "in_transit", "location": "Albuquerque, NM", "description": "Arrived at USPS Regional Facility"},
-            {"timestamp": "2026-02-09T16:45:00Z", "status": "in_transit", "location": "Denver, CO", "description": "Departed USPS Regional Origin Facility"},
-            {"timestamp": "2026-02-09T10:12:00Z", "status": "accepted", "location": "Denver, CO", "description": "Accepted at USPS Origin Facility"},
-            {"timestamp": "2026-02-08T22:00:00Z", "status": "label_created", "location": "Denver, CO", "description": "Shipping Label Created"},
-        ],
-        "created_at": "2026-02-08T22:00:00Z",
-    },
-    {
-        "id": 2,
-        "tracking_number": "1Z999AA10123456784",
-        "carrier": "UPS",
-        "status": "delivered",
-        "origin": "New York, NY",
-        "destination": "Chicago, IL",
-        "estimated_delivery": "2026-02-10T17:00:00Z",
-        "events": [
-            {"timestamp": "2026-02-10T14:05:00Z", "status": "delivered", "location": "Chicago, IL", "description": "Delivered - Left at Front Door"},
-            {"timestamp": "2026-02-10T07:30:00Z", "status": "out_for_delivery", "location": "Chicago, IL", "description": "Out For Delivery Today"},
-            {"timestamp": "2026-02-09T22:15:00Z", "status": "in_transit", "location": "Hodgkins, IL", "description": "Arrived at Facility"},
-            {"timestamp": "2026-02-08T18:00:00Z", "status": "in_transit", "location": "New York, NY", "description": "Departed Facility"},
-            {"timestamp": "2026-02-08T12:00:00Z", "status": "label_created", "location": "New York, NY", "description": "Shipment Picked Up"},
-        ],
-        "created_at": "2026-02-08T12:00:00Z",
-    },
-    {
-        "id": 3,
-        "tracking_number": "789456123012345678",
-        "carrier": "FedEx",
-        "status": "exception",
-        "origin": "Seattle, WA",
-        "destination": "Miami, FL",
-        "estimated_delivery": None,
-        "events": [
-            {"timestamp": "2026-02-11T10:00:00Z", "status": "exception", "location": "Memphis, TN", "description": "Delay - Weather conditions"},
-            {"timestamp": "2026-02-10T05:30:00Z", "status": "in_transit", "location": "Memphis, TN", "description": "At FedEx Hub"},
-            {"timestamp": "2026-02-09T14:00:00Z", "status": "in_transit", "location": "Portland, OR", "description": "In transit"},
-            {"timestamp": "2026-02-08T20:00:00Z", "status": "label_created", "location": "Seattle, WA", "description": "Picked up"},
-        ],
-        "created_at": "2026-02-08T20:00:00Z",
-    },
-    {
-        "id": 4,
-        "tracking_number": "9261290100130736410086",
-        "carrier": "USPS",
-        "status": "out_for_delivery",
-        "origin": "Austin, TX",
-        "destination": "Dallas, TX",
-        "estimated_delivery": "2026-02-11T17:00:00Z",
-        "events": [
-            {"timestamp": "2026-02-11T06:45:00Z", "status": "out_for_delivery", "location": "Dallas, TX", "description": "Out for Delivery"},
-            {"timestamp": "2026-02-11T04:30:00Z", "status": "in_transit", "location": "Dallas, TX", "description": "Arrived at Post Office"},
-            {"timestamp": "2026-02-10T18:00:00Z", "status": "in_transit", "location": "Austin, TX", "description": "Departed"},
-            {"timestamp": "2026-02-10T10:00:00Z", "status": "label_created", "location": "Austin, TX", "description": "Label Created"},
-        ],
-        "created_at": "2026-02-10T10:00:00Z",
-    },
-]
+
+@router.get("", response_model=ShipmentSummary)
+async def get_shipments(
+    status: str | None = None,
+    db: AsyncSession = Depends(get_db),
+):
+    """List all shipments with summary stats."""
+    return await shipment_service.get_all(db, status=status)
 
 
-@router.get("")
-async def get_shipments():
-    return {
-        "shipments": MOCK_SHIPMENTS,
-        "summary": {
-            "total": len(MOCK_SHIPMENTS),
-            "in_transit": sum(1 for s in MOCK_SHIPMENTS if s["status"] == "in_transit"),
-            "delivered": sum(1 for s in MOCK_SHIPMENTS if s["status"] == "delivered"),
-            "out_for_delivery": sum(1 for s in MOCK_SHIPMENTS if s["status"] == "out_for_delivery"),
-            "exception": sum(1 for s in MOCK_SHIPMENTS if s["status"] == "exception"),
-        },
-    }
+@router.get("/{shipment_id}", response_model=ShipmentResponse)
+async def get_shipment(
+    shipment_id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    """Get a single shipment with full event timeline."""
+    result = await shipment_service.get_by_id(db, shipment_id)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Shipment not found")
+    return result
 
 
-@router.get("/{shipment_id}")
-async def get_shipment(shipment_id: int):
-    for s in MOCK_SHIPMENTS:
-        if s["id"] == shipment_id:
-            return s
-    return {"error": "Shipment not found"}
+@router.post("", response_model=ShipmentResponse, status_code=201)
+async def create_shipment(
+    data: ShipmentCreate,
+    db: AsyncSession = Depends(get_db),
+):
+    """Add a new shipment with carrier auto-detection.
+
+    If carrier is omitted or set to "auto", the carrier will be detected
+    from the tracking number format.
+
+    After creation, a background task attempts to fetch initial tracking
+    data from the carrier's tracking page.
+    """
+    shipment = await shipment_service.create(db, data)
+
+    # Fire-and-forget: fetch initial tracking data
+    asyncio.create_task(_fetch_initial_tracking(shipment.id))
+
+    return shipment
 
 
-@router.post("")
-async def create_shipment(shipment: ShipmentCreate):
-    return {
-        "id": len(MOCK_SHIPMENTS) + 1,
-        "tracking_number": shipment.tracking_number,
-        "carrier": shipment.carrier,
-        "status": "label_created",
-        "origin": shipment.origin,
-        "destination": shipment.destination,
-        "estimated_delivery": None,
-        "events": [],
-        "created_at": "2026-02-11T16:00:00Z",
-    }
+@router.delete("/{shipment_id}")
+async def delete_shipment(
+    shipment_id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    """Delete a shipment."""
+    deleted = await shipment_service.delete(db, shipment_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Shipment not found")
+    return {"success": True, "message": f"Shipment {shipment_id} deleted"}
+
+
+@router.post("/{shipment_id}/refresh", response_model=ShipmentResponse)
+async def refresh_tracking(
+    shipment_id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    """Manually refresh tracking data for a shipment from the carrier."""
+    shipment = await shipment_service.get_by_id(db, shipment_id)
+    if shipment is None:
+        raise HTTPException(status_code=404, detail="Shipment not found")
+
+    from app.services.carrier_tracker import carrier_tracker
+
+    tracking_data = await carrier_tracker.track(
+        shipment.carrier, shipment.tracking_number
+    )
+
+    if tracking_data is None:
+        # Carrier tracking unavailable — return current data unchanged
+        return shipment
+
+    updated = await shipment_service.update_tracking(
+        db,
+        shipment_id=shipment.id,
+        new_status=tracking_data["status"],
+        events=tracking_data["events"],
+        estimated_delivery=None,  # Parsed from tracking_data if available
+    )
+    return updated or shipment
+
+
+async def _fetch_initial_tracking(shipment_id: int) -> None:
+    """Background task to fetch tracking data right after a shipment is created."""
+    try:
+        # Small delay to let the DB commit settle
+        import asyncio
+        await asyncio.sleep(1.0)
+
+        from app.database import async_session
+        from app.services.carrier_tracker import carrier_tracker
+
+        async with async_session() as db:
+            from app.models.shipment import Shipment
+            from sqlalchemy import select
+
+            result = await db.execute(
+                select(Shipment).where(Shipment.id == shipment_id)
+            )
+            shipment = result.scalar_one_or_none()
+            if shipment is None:
+                return
+
+            tracking_data = await carrier_tracker.track(
+                shipment.carrier, shipment.tracking_number
+            )
+            if tracking_data is None:
+                return
+
+            shipment.status = tracking_data["status"]
+            shipment.events = tracking_data["events"]
+            await db.commit()
+
+    except Exception as exc:
+        import logging
+        logging.getLogger(__name__).warning(
+            "Failed to fetch initial tracking for shipment %d: %s",
+            shipment_id,
+            exc,
+        )

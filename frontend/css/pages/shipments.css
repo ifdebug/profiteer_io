@@ -103,3 +103,52 @@
   color: var(--text-tertiary);
   margin-top: 2px;
 }
+
+/* Add shipment form */
+.shipment-add-form {
+  margin-bottom: var(--space-4);
+}
+
+.shipment-form-row {
+  display: flex;
+  gap: var(--space-3);
+}
+
+/* Active card highlight */
+.shipment-card-active {
+  border-color: var(--action);
+  background: var(--bg-elevated);
+  box-shadow: 0 0 0 1px var(--action);
+}
+
+/* Action buttons on shipment cards */
+.shipment-actions {
+  display: flex;
+  gap: var(--space-1);
+  flex-shrink: 0;
+}
+
+.shipment-actions .btn {
+  opacity: 0.5;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.shipment-card:hover .shipment-actions .btn {
+  opacity: 1;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .shipment-form-row {
+    flex-direction: column;
+  }
+
+  .shipment-card {
+    flex-wrap: wrap;
+  }
+
+  .shipment-actions {
+    order: 3;
+    margin-left: auto;
+  }
+}
