@@ -24,3 +24,4 @@ class Deal(TimestampMixin, Base):
     end_date: Mapped[date | None] = mapped_column(default=None)
     upvotes: Mapped[int] = mapped_column(Integer, default=0)
     downvotes: Mapped[int] = mapped_column(Integer, default=0)
+    profit_potential: Mapped[float | None] = mapped_column(Numeric(10, 2), default=None)
