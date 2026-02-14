@@ -22,11 +22,18 @@ from app.routers import (
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
+    from app.tasks.scheduler import start_scheduler
+
+    await start_scheduler()
+
     yield
+
     # Shutdown
     from app.database import engine
     from app.services.cache import cache_service
+    from app.tasks.scheduler import shutdown_scheduler
 
+    await shutdown_scheduler()
     await cache_service.close()
     await engine.dispose()
 
