@@ -8,6 +8,7 @@ from app.models.inventory import InventoryItem
 from app.models.shipment import Shipment
 from app.models.alert import Alert
 from app.models.deal import Deal
+from app.models.hype_snapshot import HypeSnapshot
 
 __all__ = [
     "Base",
@@ -18,4 +19,5 @@ __all__ = [
     "Shipment",
     "Alert",
     "Deal",
+    "HypeSnapshot",
 ]

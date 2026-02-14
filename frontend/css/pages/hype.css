@@ -1,4 +1,79 @@
 /* Hype Analyzer page styles */
+
+/* Search controls */
+.hype-controls {
+  margin-bottom: var(--space-6);
+}
+
+.hype-search-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  max-width: 340px;
+}
+
+/* Search dropdown */
+.hype-search-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--color-scan-line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: var(--z-dropdown);
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: var(--space-1);
+}
+
+.hype-search-dropdown.open {
+  display: block;
+}
+
+.hype-dropdown-item {
+  display: block;
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--color-scan-line);
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: background-color var(--transition-fast);
+}
+
+.hype-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.hype-dropdown-item:hover {
+  background: var(--bg-hover);
+}
+
+.hype-dropdown-item-name {
+  font-weight: 500;
+  font-size: var(--text-sm);
+}
+
+.hype-dropdown-item-meta {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.hype-dropdown-empty {
+  padding: var(--space-4);
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+/* Gauge */
 .hype-gauge-container {
   display: flex;
   flex-direction: column;
@@ -29,6 +104,7 @@
   margin-top: var(--space-2);
 }
 
+/* Signals grid */
 .hype-signals {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -55,6 +131,7 @@
   margin-top: var(--space-1);
 }
 
+/* Leaderboards */
 .leaderboard-section {
   margin-top: var(--space-6);
 }
@@ -73,6 +150,17 @@
   background: var(--bg-card);
   border: 1px solid var(--color-scan-line);
   border-radius: var(--radius-md);
+}
+
+.leaderboard-item-btn {
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--text-primary);
+  transition: background-color var(--transition-fast);
+}
+
+.leaderboard-item-btn:hover {
+  background: var(--bg-hover);
 }
 
 .leaderboard-rank {
@@ -95,6 +183,15 @@
   font-weight: 700;
 }
 
+/* Empty state subtitle */
+.empty-state-subtitle {
+  color: var(--text-tertiary);
+  font-size: var(--text-sm);
+  margin-top: var(--space-2);
+  max-width: 400px;
+}
+
 @media (max-width: 768px) {
   .hype-signals { grid-template-columns: repeat(2, 1fr); }
+  .hype-search-wrapper { max-width: 100%; }
 }

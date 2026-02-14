@@ -2,3 +2,4 @@
 import { api } from './client.js';
 export function getHypeScore(itemId) { return api.get(`/hype/${itemId}`); }
 export function getLeaderboards() { return api.get('/hype/leaderboards'); }
+export function searchHypeItems(query) { return api.get('/hype', { q: query }); }
